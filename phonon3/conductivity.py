@@ -336,7 +336,8 @@ class Conductivity(object):
                 grid_points,
                 coarse_mesh_shifts=self._coarse_mesh_shifts)
             (self._ir_grid_points,
-             self._ir_grid_weights) = self._get_ir_grid_points()
+             self._ir_grid_weights,
+             self._ir_grid_mapping_table,) = self._get_ir_grid_points()
         elif not self._is_kappa_star:  # All grid points
             coarse_grid_address = get_grid_address(self._coarse_mesh)
             coarse_grid_points = np.arange(np.prod(self._coarse_mesh),
@@ -351,7 +352,7 @@ class Conductivity(object):
             self._ir_grid_points = self._grid_points
             self._ir_grid_weights = self._grid_weights
         else:  # Automatic sampling
-            self._grid_points, self._grid_weights = self._get_ir_grid_points()
+            self._grid_points, self._grid_weights, self._grid_mapping_table = self._get_ir_grid_points()
             self._ir_grid_points = self._grid_points
             self._ir_grid_weights = self._grid_weights
 
@@ -431,7 +432,8 @@ class Conductivity(object):
             mesh_shifts = self._coarse_mesh_shifts
         (coarse_grid_points,
          coarse_grid_weights,
-         coarse_grid_address, _) = get_ir_grid_points(
+         coarse_grid_address, 
+         coarse_grid_mapping_table,) = get_ir_grid_points(
              self._coarse_mesh,
              self._symmetry.get_pointgroup_operations(),
              mesh_shifts=mesh_shifts)
@@ -445,7 +447,7 @@ class Conductivity(object):
 
         assert grid_weights.sum() == np.prod(self._mesh // self._mesh_divisors)
 
-        return grid_points, grid_weights
+        return grid_points, grid_weights, coarse_grid_mapping_table
 
     def _set_isotope(self, mass_variances):
         if mass_variances is True:
